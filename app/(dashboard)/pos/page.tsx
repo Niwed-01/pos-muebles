@@ -396,7 +396,7 @@ export default function POSPage() {
     (paymentMethod !== "EFECTIVO" || cashReceived >= total)
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex gap-4 overflow-hidden">
+    <div className="h-[calc(100vh-8rem)] flex flex-col md:flex-row gap-4 overflow-hidden">
       {/* LEFT COLUMN — Products */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="relative mb-4 flex-shrink-0">
@@ -421,7 +421,7 @@ export default function POSPage() {
               {debouncedSearch ? "Sin resultados" : "No hay productos disponibles"}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {products.map((product) => {
                 const inCart = cart.find((c) => c.productId === product.id)
                 const outOfStock = product.stock <= 0
@@ -481,7 +481,7 @@ export default function POSPage() {
       </div>
 
       {/* RIGHT COLUMN — Cart */}
-      <div className="w-96 flex flex-col bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden flex-shrink-0">
+      <div className="w-full md:w-96 flex flex-col bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden flex-shrink-0">
         {/* Cart header */}
         <div className="p-4 border-b border-slate-700">
           <h2 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -610,7 +610,7 @@ export default function POSPage() {
                 placeholder="Buscar o crear cliente..."
                 value={customerSearch}
                 onChange={(e) => setCustomerSearch(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+                className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
               />
               {customerDebouncedSearch && customers.length > 0 && (
                 <div className="absolute bottom-full mb-1 left-0 right-0 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-40 overflow-y-auto z-10">
@@ -674,7 +674,7 @@ export default function POSPage() {
               step="0.01"
               value={cashReceived || ""}
               onChange={(e) => setCashReceived(Number(e.target.value) || 0)}
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
               placeholder="0.00"
             />
             {cashReceived > 0 && (
@@ -724,7 +724,7 @@ export default function POSPage() {
           <button
             onClick={handleCobrar}
             disabled={!canCobrar}
-            className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-base font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-base font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             {saleMutation.isPending ? (
               <>
@@ -776,7 +776,7 @@ export default function POSPage() {
                   onChange={(e) =>
                     setCreditForm((prev) => ({ ...prev, inicial: Number(e.target.value) || 0 }))
                   }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   placeholder="0.00"
                 />
               </div>
@@ -792,7 +792,7 @@ export default function POSPage() {
                   onChange={(e) =>
                     setCreditForm((prev) => ({ ...prev, plazo: Math.max(1, Number(e.target.value) || 1) }))
                   }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                 />
               </div>
 
@@ -808,7 +808,7 @@ export default function POSPage() {
                       frecuencia: e.target.value as CreditForm["frecuencia"],
                     }))
                   }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                 >
                   <option value="SEMANAL">Semanal</option>
                   <option value="QUINCENAL">Quincenal</option>
@@ -830,7 +830,7 @@ export default function POSPage() {
                       tasaInteres: Number(e.target.value) || 0,
                     }))
                   }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   placeholder="0"
                 />
               </div>
@@ -849,7 +849,7 @@ export default function POSPage() {
                       seguro: Number(e.target.value) || 0,
                     }))
                   }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   placeholder="0"
                 />
               </div>
@@ -995,7 +995,7 @@ export default function POSPage() {
               </button>
               <button
                 onClick={handleNewSale}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-lg transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 Nueva Venta

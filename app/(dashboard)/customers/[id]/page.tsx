@@ -179,7 +179,7 @@ export default function CustomerDetailPage() {
                 Historial de Compras
               </div>
               {activeTab === "compras" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600" />
               )}
             </button>
             <button
@@ -200,7 +200,7 @@ export default function CustomerDetailPage() {
                 )}
               </div>
               {activeTab === "creditos" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600" />
               )}
             </button>
           </div>

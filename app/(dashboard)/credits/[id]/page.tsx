@@ -7,6 +7,8 @@ import { ArrowLeft, CreditCard, DollarSign, BadgeCheck, Calendar } from "lucide-
 import { PageHeader } from "@/components/shared/page-header"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { EmptyState } from "@/components/shared/empty-state"
+import { StatusBadge } from "@/components/shared/status-badge"
+import { toast } from "sonner"
 
 interface Payment {
   id: string
@@ -62,12 +64,6 @@ const formatDate = (date: string) =>
     year: "numeric",
   }).format(new Date(date))
 
-const estadoBadge: Record<string, string> = {
-  ACTIVO: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  ATRASADO: "bg-red-500/10 text-red-400 border-red-500/20",
-  PAGADO: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-}
-
 export default function CreditDetailPage() {
   const params = useParams()
   const router = useRouter()
@@ -108,9 +104,10 @@ export default function CreditDetailPage() {
       setShowPaymentModal(false)
       setPagoMonto("")
       setPagoNotas("")
+      toast.success("Pago registrado exitosamente")
     },
     onError: (error: Error) => {
-      alert(error.message)
+      toast.error(error.message)
     },
   })
 
@@ -186,17 +183,9 @@ export default function CreditDetailPage() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Estado</p>
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border mt-1 ${
-                  estadoBadge[credit.estado] ?? ""
-                }`}
-              >
-                {credit.estado === "ACTIVO"
-                  ? "Activo"
-                  : credit.estado === "ATRASADO"
-                    ? "Atrasado"
-                    : "Pagado"}
-              </span>
+              <div className="mt-1">
+                <StatusBadge status={credit.estado} />
+              </div>
             </div>
           </div>
         </div>
@@ -231,7 +220,7 @@ export default function CreditDetailPage() {
           {credit.estado !== "PAGADO" && (
             <button
               onClick={() => setShowPaymentModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
               <DollarSign className="h-4 w-4" />
               Registrar Pago
@@ -281,17 +270,11 @@ export default function CreditDetailPage() {
                   </td>
                   <td className="px-3 py-3 text-center">
                     {row.pagada ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        Pagada
-                      </span>
+                      <StatusBadge status="PAGADO" label="Pagada" />
                     ) : row.atrasada ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
-                        Atrasada
-                      </span>
+                      <StatusBadge status="ATRASADO" label="Atrasada" />
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-500/10 text-slate-400 border border-slate-500/20">
-                        Pendiente
-                      </span>
+                      <StatusBadge status="PENDIENTE" label="Pendiente" />
                     )}
                   </td>
                 </tr>
@@ -336,7 +319,7 @@ export default function CreditDetailPage() {
                   value={pagoMonto}
                   onChange={(e) => setPagoMonto(e.target.value)}
                   placeholder="0.00"
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
                 />
                 <p className="mt-1 text-xs text-slate-500">
                   Saldo pendiente: {formatCurrency(credit.saldo)}
@@ -358,7 +341,7 @@ export default function CreditDetailPage() {
                   value={pagoNotas}
                   onChange={(e) => setPagoNotas(e.target.value)}
                   placeholder="Nota o referencia"
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
                 />
               </div>
             </div>
@@ -377,7 +360,7 @@ export default function CreditDetailPage() {
               <button
                 onClick={() => paymentMutation.mutate()}
                 disabled={!pagoMonto || Number(pagoMonto) <= 0 || paymentMutation.isPending}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
               >
                 {paymentMutation.isPending ? (
                   <>

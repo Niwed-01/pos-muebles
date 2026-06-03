@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/shared/page-header"
 import { DataTable } from "@/components/shared/data-table"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { EmptyState } from "@/components/shared/empty-state"
+import { StatusBadge } from "@/components/shared/status-badge"
 import type { ColumnDef } from "@tanstack/react-table"
 
 type CreditEstado = "ACTIVO" | "ATRASADO" | "PAGADO"
@@ -37,12 +38,6 @@ const tabs = [
   { key: "ATRASADO", label: "Atrasados" },
   { key: "PAGADO", label: "Pagados" },
 ]
-
-const estadoBadge: Record<CreditEstado, { class: string; label: string }> = {
-  ACTIVO: { class: "bg-blue-500/10 text-blue-400 border-blue-500/20", label: "Activo" },
-  ATRASADO: { class: "bg-red-500/10 text-red-400 border-red-500/20", label: "Atrasado" },
-  PAGADO: { class: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", label: "Pagado" },
-}
 
 function calcularProximaCuota(credit: Credit): { monto: number; fecha: string } | null {
   const saldo = Number(credit.saldo)
@@ -124,14 +119,7 @@ export default function CreditsPage() {
         header: "Estado",
         accessorKey: "estado",
         cell: ({ row }) => {
-          const badge = estadoBadge[row.original.estado]
-          return (
-            <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${badge.class}`}
-            >
-              {badge.label}
-            </span>
-          )
+          return <StatusBadge status={row.original.estado} />
         },
       },
     ],
@@ -151,7 +139,7 @@ export default function CreditsPage() {
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               activeTab === tab.key
-                ? "bg-emerald-500 text-white"
+                ? "bg-emerald-600 text-white"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >

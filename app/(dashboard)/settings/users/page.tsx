@@ -378,6 +378,22 @@ export default function SettingsUsersPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!confirmToggle}
+        title={confirmToggle?.activo ? "Activar Usuario" : "Desactivar Usuario"}
+        description={`¿Estás seguro de que deseas ${confirmToggle?.activo ? "activar" : "desactivar"} al usuario "${confirmToggle?.nombre}"?`}
+        confirmLabel={confirmToggle?.activo ? "Activar" : "Desactivar"}
+        variant={confirmToggle?.activo ? "default" : "danger"}
+        onConfirm={() => {
+          if (confirmToggle) {
+            toggleMutation.mutate({ id: confirmToggle.id, activo: confirmToggle.activo })
+            setConfirmToggle(null)
+          }
+        }}
+        onCancel={() => setConfirmToggle(null)}
+        loading={toggleMutation.isPending}
+      />
     </div>
   )
 }

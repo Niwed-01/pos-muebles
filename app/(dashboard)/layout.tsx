@@ -96,7 +96,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-slate-950">
       {sidebarMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={handleOverlayClick}
         />
       )}
@@ -106,8 +106,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           fixed top-0 left-0 z-50 h-full bg-slate-900 border-r border-slate-800
           transition-all duration-300 flex flex-col
           w-60
-          ${sidebarCollapsed ? "lg:w-16" : ""}
-          ${sidebarMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+          ${sidebarCollapsed ? "md:w-16" : ""}
+          ${sidebarMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         `}
       >
         <div className="flex items-center h-16 px-4 border-b border-slate-800">
@@ -212,19 +212,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-16" : "lg:ml-60"}`}>
-        <header className="sticky top-0 z-30 h-16 bg-slate-900/80 backdrop-blur-sm border-b border-slate-800 flex items-center justify-between px-4 lg:px-6">
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? "md:ml-16" : "md:ml-60"}`}>
+        <header className="sticky top-0 z-30 h-16 bg-slate-900/80 backdrop-blur-sm border-b border-slate-800 flex items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarMobileOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-800 text-slate-400"
+              className="md:hidden p-2 rounded-lg hover:bg-slate-800 text-slate-400"
             >
               <Menu className="h-5 w-5" />
             </button>
 
             <button
               onClick={toggleSidebar}
-              className="hidden lg:flex p-2 rounded-lg hover:bg-slate-800 text-slate-400"
+              className="hidden md:flex p-2 rounded-lg hover:bg-slate-800 text-slate-400"
             >
               {sidebarCollapsed ? (
                 <ChevronRight className="h-5 w-5" />
@@ -252,7 +252,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </header>
 
-        <main className="p-4 lg:p-6">{children}</main>
+        <main className="p-4 md:p-6">{children}</main>
       </div>
     </div>
   )
