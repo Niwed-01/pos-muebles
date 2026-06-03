@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Rol {
+  ADMIN
+  VENDEDOR
+}
+
+enum MetodoPago {
+  EFECTIVO
+  TARJETA
+  TRANSFERENCIA
+  CREDITO
+}
+
+enum EstadoVenta {
+  PENDIENTE
+  PAGADA
+  ANULADA
+}
+
+enum Frecuencia {
+  SEMANAL
+  QUINCENAL
+  MENSUAL
+}
+
+enum EstadoCredito {
+  ACTIVO
+  ATRASADO
+  PAGADO
+}
+
+model User {
+  id           String   @id @default(uuid())
+  nombre       String
+  email        String   @unique
+  passwordHash String
+  rol          Rol      @default(VENDEDOR)
+  activo       Boolean  @default(true)
+  creadoEn     DateTime @default(now())
+  ventas       Sale[]
+
+  @@index([email])
+  @@index([rol])
+  @@map("users")
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  nombre   String
+  slug     String    @unique
+  productos Product[]
+
+  @@index([nombre])
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  codigo      String?  @unique
+  nombre      String
+  descripcion String?
+  categoryId  String
+  categoria   Category @relation(fields: [categoryId], references: [id])
+  costo       Decimal  @db.Decimal(10, 2)
+  precio      Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  stockMinimo Int      @default(0)
+  activo      Boolean  @default(true)
+  imagenes    String[]
+  creadoEn    DateTime @default(now())
+
+  @@index([codigo])
+  @@index([nombre])
+  @@index([categoryId])
+  @@index([activo])
+  @@map("products")
+}
+
+model Customer {
+  id        String    @id @default(uuid())
+  nombre    String
+  cedula    String?   @unique
+  telefono  String?
+  email     String?
+  direccion String?
+  notas     String?
+  creadoEn  DateTime  @default(now())
+  ventas    Sale[]
+  creditos  Credit[]
+
+  @@index([nombre])
+  @@index([cedula])
+  @@index([telefono])
+  @@index([email])
+  @@index([creadoEn])
+  @@map("customers")
+}
+
+model Sale {
+  id         String       @id @default(uuid())
+  numero     Int          @default(autoincrement())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id])
+  customerId String
+  customer   Customer     @relation(fields: [customerId], references: [id])
+  items      Json
+  subtotal   Decimal      @db.Decimal(10, 2)
+  impuesto   Decimal      @db.Decimal(10, 2)
+  total      Decimal      @db.Decimal(10, 2)
+  metodoPago MetodoPago
+  estado     EstadoVenta  @default(PENDIENTE)
+  creadoEn   DateTime     @default(now())
+  credito    Credit?
+
+  @@index([numero])
+  @@index([userId])
+  @@index([customerId])
+  @@index([creadoEn])
+  @@index([estado])
+  @@map("sales")
+}
+
+model Credit {
+  id          String          @id @default(uuid())
+  saleId      String          @unique
+  venta       Sale            @relation(fields: [saleId], references: [id])
+  customerId  String
+  customer    Customer        @relation(fields: [customerId], references: [id])
+  montoTotal  Decimal         @db.Decimal(10, 2)
+  inicial     Decimal         @db.Decimal(10, 2)
+  saldo       Decimal         @db.Decimal(10, 2)
+  cuotas      Int
+  frecuencia  Frecuencia
+  tasaInteres Decimal         @db.Decimal(5, 2)
+  seguro      Decimal         @db.Decimal(10, 2) @default(0)
+  estado      EstadoCredito   @default(ACTIVO)
+  pagos       CreditPayment[]
+
+  @@index([saleId])
+  @@index([customerId])
+  @@index([estado])
+  @@map("credits")
+}
+
+model CreditPayment {
+  id       String   @id @default(uuid())
+  creditId String
+  credito  Credit   @relation(fields: [creditId], references: [id])
+  monto    Decimal  @db.Decimal(10, 2)
+  fecha    DateTime @default(now())
+  notas    String?
+
+  @@index([creditId])
+  @@index([fecha])
+  @@map("credit_payments")
+}
+
+model Setting {
+  id    String @id @default(uuid())
+  clave String @unique
+  valor String
+
+  @@index([clave])
+  @@map("settings")
+}
