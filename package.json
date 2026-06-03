@@ -21,6 +21,8 @@
     "@react-pdf/renderer": "^4.1.6",
     "@tanstack/react-query": "^5.62.0",
     "@tanstack/react-table": "^8.20.6",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "bcryptjs": "^3.0.3",
     "lucide-react": "^0.460.0",
     "next": "^14.2.21",

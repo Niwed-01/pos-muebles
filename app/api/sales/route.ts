@@ -114,18 +114,11 @@ export async function POST(req: NextRequest) {
         })
       }
 
-      const result = await tx.$executeRaw`
-        UPDATE products
-        SET stock = stock - sub.qty
-        FROM (
-          SELECT unnest(ARRAY[${verifiedItems.map(i => i.productId)}]::text[]) AS id,
-                 unnest(ARRAY[${verifiedItems.map(i => i.cantidad)}]::int[]) AS qty
-        ) AS sub
-        WHERE products.id = sub.id AND products.stock >= sub.qty AND products.activo = true
-      `
-
-      if (result === 0) {
-        throw new Error("Stock insuficiente - intente nuevamente")
+      for (const item of verifiedItems) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.cantidad } },
+        })
       }
 
       const impuesto = Math.round((totalConItbis - subtotalBase) * 100) / 100

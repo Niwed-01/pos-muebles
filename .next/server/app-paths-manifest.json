@@ -1,9 +1,3 @@
 {
-  "/api/products/route": "app/api/products/route.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/(dashboard)/page": "app/(dashboard)/page.js",
-  "/(dashboard)/credits/page": "app/(dashboard)/credits/page.js",
-  "/(dashboard)/pos/page": "app/(dashboard)/pos/page.js",
-  "/(dashboard)/products/[id]/page": "app/(dashboard)/products/[id]/page.js",
-  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js"
+  "/_not-found/page": "app/_not-found/page.js"
 }

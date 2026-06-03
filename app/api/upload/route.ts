@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server"
-import { writeFile, mkdir } from "fs/promises"
+import { writeFile, mkdir, rename } from "fs/promises"
 import path from "path"
+import os from "os"
+import { randomUUID } from "crypto"
 import { apiResponse, getAuthUser } from "@/lib/utils"
 
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"])
@@ -11,6 +13,21 @@ const EXT_MAP: Record<string, string> = {
   "image/gif": "gif",
 }
 const MAX_FILE_SIZE = 5 * 1024 * 1024
+
+const MAGIC_BYTES: Record<string, number[][]> = {
+  "image/jpeg": [[0xFF, 0xD8, 0xFF]],
+  "image/png":  [[0x89, 0x50, 0x4E, 0x47]],
+  "image/webp": [[0x52, 0x49, 0x46, 0x46]],
+  "image/gif":  [[0x47, 0x49, 0x46, 0x38]],
+}
+
+function verifyMagicBytes(buffer: Buffer, mimeType: string): boolean {
+  const signatures = MAGIC_BYTES[mimeType]
+  if (!signatures) return false
+  return signatures.some(sig =>
+    sig.every((byte, i) => buffer[i] === byte)
+  )
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,9 +65,23 @@ export async function POST(req: NextRequest) {
     for (const file of files) {
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
+
+      // verify magic bytes before saving
+      if (!verifyMagicBytes(buffer, file.type)) {
+        return apiResponse(null, "El archivo no es una imagen válida", undefined, 400)
+      }
+
       const ext = EXT_MAP[file.type] ?? "jpg"
-      const filename = `${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`
-      await writeFile(path.join(uploadDir, filename), buffer)
+      // filename: timestamp + secure random alphanumeric id (no hyphens)
+      const uuid = randomUUID().replace(/-/g, "")
+      const filename = `${Date.now()}-${uuid}.${ext}`
+
+      // write to temp location first, then move to uploads
+      const tmpPath = path.join(os.tmpdir(), filename)
+      const finalPath = path.join(uploadDir, filename)
+      await writeFile(tmpPath, buffer)
+      await rename(tmpPath, finalPath)
+
       urls.push(`/uploads/${filename}`)
     }
 
