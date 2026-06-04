@@ -1,4 +1,10 @@
 {
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/(auth)/login/page": "app/(auth)/login/page.js"
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/api/products/route": "app/api/products/route.js",
+  "/api/dgii/606/route": "app/api/dgii/606/route.js",
+  "/api/dashboard/route": "app/api/dashboard/route.js",
+  "/api/dgii/607/route": "app/api/dgii/607/route.js",
+  "/(dashboard)/page": "app/(dashboard)/page.js",
+  "/(dashboard)/dgii/page": "app/(dashboard)/dgii/page.js"
 }
