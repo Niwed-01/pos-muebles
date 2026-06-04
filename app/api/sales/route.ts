@@ -3,6 +3,7 @@ import { z } from "zod"
 import { db } from "@/lib/db"
 import { apiResponse, getAuthUser } from "@/lib/utils"
 import { calcCreditSummary } from "@/lib/credit-calc"
+import { createSaleJournalEntry } from "@/lib/accounting"
 
 const ITBIS_RATE = 0.18
 
@@ -17,6 +18,11 @@ const creditInfoSchema = z.object({
   frecuencia: z.enum(["SEMANAL", "QUINCENAL", "MENSUAL"]),
   tasaInteres: z.number().min(0).default(0),
   seguro: z.number().min(0).default(0),
+  tipoSeguro: z.enum(["FIJO", "PORCENTAJE"]).default("FIJO"),
+  valorSeguro: z.number().min(0).default(0),
+  gastosLegales: z.number().min(0).default(0),
+  detalleGastos: z.string().optional().nullable(),
+  modalidadGastos: z.enum(["CUOTAS", "INICIAL"]).default("CUOTAS"),
 })
 
 const createSaleSchema = z.object({
@@ -40,9 +46,10 @@ export async function GET(req: NextRequest) {
 
     const where: Record<string, unknown> = {}
     if (fechaDesde || fechaHasta) {
-      where.creadoEn = {}
-      if (fechaDesde) where.creadoEn.gte = new Date(fechaDesde)
-      if (fechaHasta) where.creadoEn.lte = new Date(fechaHasta)
+      const creadoEnFilter: Record<string, Date> = {}
+      if (fechaDesde) creadoEnFilter.gte = new Date(fechaDesde)
+      if (fechaHasta) creadoEnFilter.lte = new Date(fechaHasta)
+      where.creadoEn = creadoEnFilter
     }
     if (userId) where.userId = userId
     if (estado) where.estado = estado
@@ -51,7 +58,7 @@ export async function GET(req: NextRequest) {
       db.sale.findMany({
         where,
         include: {
-          customer: { select: { id: true, nombre: true, cedula: true } },
+          customer: { select: { id: true, nombre: true, cedula: true, telefono: true } },
           user: { select: { id: true, nombre: true } },
           credito: { select: { id: true, estado: true, saldo: true } },
         },
@@ -123,7 +130,7 @@ export async function POST(req: NextRequest) {
 
       const impuesto = Math.round((totalConItbis - subtotalBase) * 100) / 100
 
-      const saleRecord = await tx.sale.create({
+      const createdSale = await tx.sale.create({
         data: {
           userId: user.id,
           customerId: parsed.customerId,
@@ -134,14 +141,34 @@ export async function POST(req: NextRequest) {
           metodoPago: parsed.metodoPago,
           estado: "PAGADA",
         },
+      })
+
+      const ncf = `B01-${String(createdSale.numero).padStart(8, "0")}`
+
+      const saleRecord = await tx.sale.update({
+        where: { id: createdSale.id },
+        data: { ncf },
         include: {
           customer: { select: { id: true, nombre: true, cedula: true } },
           user: { select: { id: true, nombre: true } },
         },
       })
 
+      await createSaleJournalEntry(
+        tx,
+        Math.round(subtotalBase * 100) / 100,
+        impuesto,
+        Math.round(totalConItbis * 100) / 100,
+        parsed.metodoPago,
+        user.id
+      )
+
       if (parsed.metodoPago === "CREDITO" && parsed.credito) {
-        const saldo = Math.round((totalConItbis - parsed.credito.inicial) * 100) / 100
+        const gastosLegales = parsed.credito.gastosLegales ?? 0
+        const modalidadGastos = parsed.credito.modalidadGastos ?? "CUOTAS"
+        const detalleGastos = parsed.credito.detalleGastos ?? ""
+
+        const saldoFinanciado = Math.round((totalConItbis - parsed.credito.inicial + (modalidadGastos === "CUOTAS" ? gastosLegales : 0)) * 100) / 100
 
         const summary = calcCreditSummary({
           montoTotal: totalConItbis,
@@ -150,7 +177,11 @@ export async function POST(req: NextRequest) {
           cuotas: parsed.credito.cuotas,
           frecuencia: parsed.credito.frecuencia,
           seguroPorCuota: parsed.credito.seguro,
+          tipoSeguro: parsed.credito.tipoSeguro,
+          valorSeguro: parsed.credito.valorSeguro,
           fechaVenta: new Date(),
+          gastosLegales,
+          modalidadGastos,
         })
 
         const credit = await tx.credit.create({
@@ -159,21 +190,30 @@ export async function POST(req: NextRequest) {
             customerId: parsed.customerId,
             montoTotal: Math.round(totalConItbis * 100) / 100,
             inicial: parsed.credito.inicial,
-            saldo: Math.max(0, saldo),
+            saldo: Math.max(0, saldoFinanciado),
             cuotas: parsed.credito.cuotas,
             frecuencia: parsed.credito.frecuencia,
             tasaInteres: parsed.credito.tasaInteres,
             seguro: parsed.credito.seguro,
-            estado: saldo <= 0 ? "PAGADO" : "ACTIVO",
+            tipoSeguro: parsed.credito.tipoSeguro,
+            valorSeguro: parsed.credito.valorSeguro,
+            gastosLegales,
+            detalleGastos,
+            modalidadGastos,
+            estado: saldoFinanciado <= 0 ? "PAGADO" : "ACTIVO",
           },
         })
 
-        if (parsed.credito.inicial > 0) {
+        const montoInicialPagado = parsed.credito.inicial + (modalidadGastos === "INICIAL" ? gastosLegales : 0)
+
+        if (montoInicialPagado > 0) {
           await tx.creditPayment.create({
             data: {
               creditId: credit.id,
-              monto: parsed.credito.inicial,
-              notas: "Pago inicial",
+              monto: montoInicialPagado,
+              notas: modalidadGastos === "INICIAL" && gastosLegales > 0
+                ? `Pago inicial (incluye RD$ ${gastosLegales.toFixed(2)} de gastos legales)`
+                : "Pago inicial",
             },
           })
         }

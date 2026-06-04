@@ -18,6 +18,9 @@ import {
   AlertTriangle,
   LogOut,
   Loader2,
+  Wallet,
+  FileSpreadsheet,
+  BookOpen,
 } from "lucide-react"
 import { useUIStore } from "@/lib/store"
 
@@ -27,6 +30,16 @@ const navItems = [
   { href: "/customers", label: "Clientes", icon: Users },
   { href: "/pos", label: "Punto de Venta", icon: ShoppingCart },
   { href: "/credits", label: "Créditos", icon: CreditCard },
+  { href: "/recovery", label: "Recuperación", icon: AlertTriangle },
+  { href: "/petty-cash", label: "Caja Chica", icon: Wallet },
+  { href: "/dgii", label: "DGII", icon: FileSpreadsheet, children: [
+    { href: "/dgii", label: "606 / 607" },
+    { href: "/dgii/history", label: "Historial" },
+  ]},
+  { href: "/accounting", label: "Contabilidad", icon: BookOpen, children: [
+    { href: "/accounting", label: "Diario / Mayor" },
+    { href: "/accounting/accounts", label: "Catálogo de Cuentas" },
+  ]},
   { href: "/settings", label: "Configuración", icon: Settings, children: [
     { href: "/settings", label: "General" },
     { href: "/settings/users", label: "Usuarios" },
@@ -39,6 +52,10 @@ const pageTitles: Record<string, string> = {
   "/customers": "Clientes",
   "/pos": "Punto de Venta",
   "/credits": "Créditos",
+  "/recovery": "Recuperación de Muebles",
+  "/dgii": "Declaración DGII",
+  "/dgii/history": "Historial DGII",
+  "/petty-cash": "Caja Chica",
   "/settings": "Configuración General",
   "/settings/users": "Gestión de Usuarios",
 }
@@ -79,8 +96,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     )
   }
@@ -93,29 +110,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const lowStockCount = lowStockProducts?.length ?? 0
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       {sidebarMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/30 z-40 md:hidden"
           onClick={handleOverlayClick}
         />
       )}
 
       <aside
         className={`
-          fixed top-0 left-0 z-50 h-full bg-slate-900 border-r border-slate-800
+          fixed top-0 left-0 z-50 h-full bg-white border-r border-slate-200
           transition-all duration-300 flex flex-col
           w-60
           ${sidebarCollapsed ? "md:w-16" : ""}
           ${sidebarMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         `}
       >
-        <div className="flex items-center h-16 px-4 border-b border-slate-800">
-          <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="flex items-center h-16 px-4 border-b border-slate-200">
+          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm">M</span>
           </div>
           {!sidebarCollapsed && (
-            <span className="ml-3 font-semibold text-white">POS Muebles</span>
+            <span className="ml-3 font-semibold text-slate-800">POS Muebles</span>
           )}
         </div>
 
@@ -133,8 +150,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
                     ${isActive
-                      ? "bg-emerald-500/10 text-emerald-400"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
                     }
                   `}
                   title={sidebarCollapsed ? item.label : undefined}
@@ -153,8 +170,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           className={`
                             block px-3 py-1.5 rounded-lg text-xs transition-colors
                             ${childActive
-                              ? "bg-emerald-500/10 text-emerald-400"
-                              : "text-slate-500 hover:text-slate-300 hover:bg-slate-800"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "text-slate-400 hover:text-slate-600 hover:bg-slate-100"
                             }
                           `}
                         >
@@ -169,25 +186,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
         </nav>
 
-        <div className="border-t border-slate-800 p-3">
+        <div className="border-t border-slate-200 p-3">
           {!sidebarCollapsed ? (
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-medium text-slate-300">
+              <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-medium text-slate-600">
                   {session?.user?.name?.charAt(0)?.toUpperCase() ?? "U"}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-200 truncate">
+                <p className="text-sm font-medium text-slate-700 truncate">
                   {session?.user?.name ?? "Usuario"}
                 </p>
-                <p className="text-xs text-slate-500 truncate">
+                <p className="text-xs text-slate-400 truncate">
                   {session?.user?.email ?? ""}
                 </p>
               </div>
               <button
                 onClick={() => signOut()}
-                className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-red-400 transition-colors"
+                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors"
                 title="Cerrar sesión"
               >
                 <LogOut className="h-4 w-4" />
@@ -195,14 +212,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center">
-                <span className="text-xs font-medium text-slate-300">
+              <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
+                <span className="text-xs font-medium text-slate-600">
                   {session?.user?.name?.charAt(0)?.toUpperCase() ?? "U"}
                 </span>
               </div>
               <button
                 onClick={() => signOut()}
-                className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-red-400 transition-colors"
+                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors"
                 title="Cerrar sesión"
               >
                 <LogOut className="h-4 w-4" />
@@ -213,18 +230,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       <div className={`transition-all duration-300 ${sidebarCollapsed ? "md:ml-16" : "md:ml-60"}`}>
-        <header className="sticky top-0 z-30 h-16 bg-slate-900/80 backdrop-blur-sm border-b border-slate-800 flex items-center justify-between px-4 md:px-6">
+        <header className="sticky top-0 z-30 h-16 bg-white/80 backdrop-blur-sm border-b border-slate-200 flex items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarMobileOpen(true)}
-              className="md:hidden p-2 rounded-lg hover:bg-slate-800 text-slate-400"
+              className="md:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-400"
             >
               <Menu className="h-5 w-5" />
             </button>
 
             <button
               onClick={toggleSidebar}
-              className="hidden md:flex p-2 rounded-lg hover:bg-slate-800 text-slate-400"
+              className="hidden md:flex p-2 rounded-lg hover:bg-slate-100 text-slate-400"
             >
               {sidebarCollapsed ? (
                 <ChevronRight className="h-5 w-5" />
@@ -233,14 +250,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               )}
             </button>
 
-            <h1 className="text-lg font-semibold text-white">{pageTitle}</h1>
+            <h1 className="text-lg font-semibold text-slate-800">{pageTitle}</h1>
           </div>
 
           <div className="flex items-center gap-4">
             {lowStockCount > 0 && (
               <Link
                 href="/products"
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-sm text-amber-400 hover:bg-amber-500/20 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700 hover:bg-amber-100 transition-colors"
               >
                 <AlertTriangle className="h-4 w-4" />
                 <span className="hidden sm:inline">

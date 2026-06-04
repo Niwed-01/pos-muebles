@@ -28,6 +28,12 @@ interface SaleData {
     tasaInteres: string
     saldo: string
     montoTotal: string
+    gastosLegales?: string | number
+    detalleGastos?: string | null
+    modalidadGastos?: string
+    tipoSeguro?: string
+    valorSeguro?: string | number
+    seguro?: string | number
   } | null
 }
 
@@ -158,6 +164,19 @@ const thermalStyles = StyleSheet.create({
     marginTop: 10,
     alignItems: "center",
   },
+  customerSection: {
+    marginBottom: 8,
+    padding: 6,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  creditContractBox: {
+    marginBottom: 8,
+    padding: 6,
+    backgroundColor: "#fdf6e3",
+    borderWidth: 1,
+    borderColor: "#e6c942",
+  },
 })
 
 // A4 receipt styles
@@ -278,6 +297,14 @@ const a4Styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 4,
   },
+  creditContractBox: {
+    marginTop: 10,
+    padding: 8,
+    backgroundColor: "#fdf6e3",
+    borderWidth: 1,
+    borderColor: "#e6c942",
+    borderRadius: 4,
+  },
 })
 
 const formatCurrency = (value: number | string) =>
@@ -311,6 +338,42 @@ export function Receipt({ sale, settings, format = "thermal80" }: ReceiptProps) 
   const styles = format === "thermal80" ? thermalStyles : a4Styles
   const isThermal = format === "thermal80"
 
+  // Calcular la cuota mensual real incluyendo intereses y seguros
+  let cuotaMensualCalculada = 0
+  let gastosLegales = 0
+  let modalidadGastos = "CUOTAS"
+  let saldoFinanciado = 0
+
+  if (sale.credito) {
+    gastosLegales = Number(sale.credito.gastosLegales || 0)
+    modalidadGastos = sale.credito.modalidadGastos || "CUOTAS"
+
+    const P_orig = Number(sale.total) - Number(sale.credito.inicial)
+    const P = P_orig + (modalidadGastos === "CUOTAS" ? gastosLegales : 0)
+    saldoFinanciado = P
+
+    const r = Number(sale.credito.tasaInteres) / 100
+    const rPeriodo = sale.credito.frecuencia === "MENSUAL" ? r / 12
+      : sale.credito.frecuencia === "QUINCENAL" ? r / (52 / 2)
+      : r / 52
+    const n = sale.credito.cuotas
+
+    let cuotaFija = 0
+    if (rPeriodo === 0) {
+      cuotaFija = P / n
+    } else {
+      const factor = Math.pow(1 + rPeriodo, n)
+      cuotaFija = P * (rPeriodo * factor) / (factor - 1)
+    }
+
+    let seguroVal = Number(sale.credito.seguro || 0)
+    if (sale.credito.tipoSeguro === "PORCENTAJE") {
+      seguroVal = P * (Number(sale.credito.valorSeguro || 0) / 100)
+    }
+
+    cuotaMensualCalculada = Math.round((cuotaFija + seguroVal) * 100) / 100
+  }
+
   return (
     <Document>
       <Page
@@ -333,27 +396,79 @@ export function Receipt({ sale, settings, format = "thermal80" }: ReceiptProps) 
           )}
         </View>
 
+        {/* Customer Section */}
+        {sale.metodoPago === "CREDITO" ? (
+          <View style={styles.creditContractBox}>
+            <Text style={{ fontWeight: "bold", fontSize: isThermal ? 8 : 11, marginBottom: 4, textAlign: "center" }}>
+              CONTRATO DE CRÉDITO
+            </Text>
+            <View style={styles.infoRow}>
+              <Text>Cliente: {sale.customer.nombre}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text>Cédula: {sale.customer.cedula ?? "N/A"}</Text>
+            </View>
+            {sale.customer.telefono && (
+              <View style={styles.infoRow}>
+                <Text>Teléfono: {sale.customer.telefono}</Text>
+              </View>
+            )}
+            <View style={styles.infoRow}>
+              <Text>Fecha: {formatDate(sale.creadoEn)}</Text>
+            </View>
+            {sale.credito && (
+              <>
+                <View style={styles.infoRow}>
+                  <Text>Precio del mueble: {formatCurrency(sale.total)}</Text>
+                </View>
+                {gastosLegales > 0 && (
+                  <View style={styles.infoRow}>
+                    <Text>Gastos legales: {formatCurrency(gastosLegales)} ({modalidadGastos === "CUOTAS" ? "en cuotas" : "al inicial"})</Text>
+                  </View>
+                )}
+                <View style={styles.infoRow}>
+                  <Text>Total financiado: {formatCurrency(saldoFinanciado)}</Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text>
+                    Plazo: {sale.credito.cuotas} cuotas ({frecuenciaLabel[sale.credito.frecuencia] ?? sale.credito.frecuencia})
+                  </Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={{ fontWeight: "bold" }}>
+                    Cuota {sale.credito.frecuencia === "MENSUAL" ? "mensual" : sale.credito.frecuencia === "QUINCENAL" ? "quincenal" : "semanal"}: {formatCurrency(cuotaMensualCalculada)}
+                  </Text>
+                </View>
+              </>
+            )}
+          </View>
+        ) : (
+          <View style={styles.customerSection}>
+            <Text style={{ fontWeight: "bold", fontSize: isThermal ? 8 : 10, marginBottom: 3 }}>Cliente:</Text>
+            <View style={styles.infoRow}>
+              <Text>Nombre: {sale.customer.nombre}</Text>
+            </View>
+            {sale.customer.cedula && (
+              <View style={styles.infoRow}>
+                <Text>Cédula: {sale.customer.cedula}</Text>
+              </View>
+            )}
+            {sale.customer.telefono && (
+              <View style={styles.infoRow}>
+                <Text>Tel: {sale.customer.telefono}</Text>
+              </View>
+            )}
+          </View>
+        )}
+
         {/* Sale Info */}
         <View style={styles.section}>
           <View style={styles.infoRow}>
-            <Text>Recibo de Venta #{sale.numero}</Text>
+            <Text>{sale.metodoPago === "CREDITO" ? `Contrato #${sale.numero}` : `Factura #${sale.numero}`}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text>Fecha: {formatDate(sale.creadoEn)}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text>Cliente: {sale.customer.nombre}</Text>
-          </View>
-          {sale.customer.cedula && (
-            <View style={styles.infoRow}>
-              <Text>Cédula: {sale.customer.cedula}</Text>
-            </View>
-          )}
-          {sale.customer.telefono && (
-            <View style={styles.infoRow}>
-              <Text>Tel: {sale.customer.telefono}</Text>
-            </View>
-          )}
           <View style={styles.infoRow}>
             <Text>Vendedor: {sale.user.nombre}</Text>
           </View>
@@ -402,17 +517,26 @@ export function Receipt({ sale, settings, format = "thermal80" }: ReceiptProps) 
         {sale.credito && (
           <View style={styles.creditSection}>
             <Text style={{ fontWeight: "bold", marginBottom: 4, fontSize: isThermal ? 8 : 10 }}>
-              Plan de Crédito
+              Plan de Crédito Detallado
             </Text>
+            <Text>Precio Mueble: {formatCurrency(sale.total)}</Text>
+            {gastosLegales > 0 && (
+              <Text>Gastos Legales: {formatCurrency(gastosLegales)} ({modalidadGastos === "CUOTAS" ? "en cuotas" : "al inicial"})</Text>
+            )}
             <Text>Inicial pagado: {formatCurrency(sale.credito.inicial)}</Text>
-            <Text>Saldo financiado: {formatCurrency(sale.credito.saldo)}</Text>
+            {gastosLegales > 0 && modalidadGastos === "INICIAL" && (
+              <Text>Inicial total a cobrar: {formatCurrency(Number(sale.credito.inicial) + gastosLegales)}</Text>
+            )}
+            <Text>Total financiado: {formatCurrency(saldoFinanciado)}</Text>
             <Text>
-              {sale.credito.cuotas} cuotas ({frecuenciaLabel[sale.credito.frecuencia] ?? sale.credito.frecuencia})
+              Plazo: {sale.credito.cuotas} cuotas ({frecuenciaLabel[sale.credito.frecuencia] ?? sale.credito.frecuencia})
             </Text>
             {Number(sale.credito.tasaInteres) > 0 && (
               <Text>Tasa de interés: {sale.credito.tasaInteres}%</Text>
             )}
-            <Text>Monto total del crédito: {formatCurrency(sale.credito.montoTotal)}</Text>
+            <Text style={{ fontWeight: "bold", marginTop: 2 }}>
+              Cuota de Pago: {formatCurrency(cuotaMensualCalculada)}
+            </Text>
           </View>
         )}
 

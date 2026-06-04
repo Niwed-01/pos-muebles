@@ -35,6 +35,7 @@ enum EstadoCredito {
   ACTIVO
   ATRASADO
   PAGADO
+  RECUPERACION
 }
 
 model User {
@@ -45,7 +46,13 @@ model User {
   rol          Rol      @default(VENDEDOR)
   activo       Boolean  @default(true)
   creadoEn     DateTime @default(now())
-  ventas       Sale[]
+  ventas              Sale[]
+  pettyCashMovements  PettyCashMovement[]
+  creditRecoveries    CreditRecovery[]
+  recoveryActions     RecoveryAction[]
+  journalEntries      JournalEntry[]
+  purchases           Purchase[]
+  dgiiSubmissions     DgiiSubmission[]
 
   @@index([email])
   @@index([rol])
@@ -105,22 +112,28 @@ model Customer {
 }
 
 model Sale {
-  id         String       @id @default(uuid())
-  numero     Int          @default(autoincrement())
-  userId     String
-  user       User         @relation(fields: [userId], references: [id])
-  customerId String
-  customer   Customer     @relation(fields: [customerId], references: [id])
-  items      Json
-  subtotal   Decimal      @db.Decimal(10, 2)
-  impuesto   Decimal      @db.Decimal(10, 2)
-  total      Decimal      @db.Decimal(10, 2)
-  metodoPago MetodoPago
-  estado     EstadoVenta  @default(PENDIENTE)
-  creadoEn   DateTime     @default(now())
-  credito    Credit?
+  id           String       @id @default(uuid())
+  numero       Int          @default(autoincrement())
+  ncf          String?      @unique
+  tipoIngreso  String?      @default("01")
+  fechaPago    DateTime?
+  itbisRetenido Decimal?    @db.Decimal(10, 2) @default(0)
+  propina      Decimal?    @db.Decimal(10, 2) @default(0)
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  customerId   String
+  customer     Customer     @relation(fields: [customerId], references: [id])
+  items        Json
+  subtotal     Decimal      @db.Decimal(10, 2)
+  impuesto     Decimal      @db.Decimal(10, 2)
+  total        Decimal      @db.Decimal(10, 2)
+  metodoPago   MetodoPago
+  estado       EstadoVenta  @default(PENDIENTE)
+  creadoEn     DateTime     @default(now())
+  credito      Credit?
 
   @@index([numero])
+  @@index([ncf])
   @@index([userId])
   @@index([customerId])
   @@index([creadoEn])
@@ -141,8 +154,14 @@ model Credit {
   frecuencia  Frecuencia
   tasaInteres Decimal         @db.Decimal(5, 2)
   seguro      Decimal         @db.Decimal(10, 2) @default(0)
+  tipoSeguro  String          @default("FIJO")
+  valorSeguro Decimal         @db.Decimal(10, 4) @default(0)
+  gastosLegales     Decimal         @db.Decimal(10, 2) @default(0)
+  detalleGastos     String?
+  modalidadGastos   String          @default("CUOTAS") // "CUOTAS" | "INICIAL"
   estado      EstadoCredito   @default(ACTIVO)
   pagos       CreditPayment[]
+  recovery    CreditRecovery?
 
   @@index([saleId])
   @@index([customerId])
@@ -163,6 +182,130 @@ model CreditPayment {
   @@map("credit_payments")
 }
 
+model CreditRecovery {
+  id          String           @id @default(uuid())
+  creditId    String           @unique
+  credit      Credit           @relation(fields: [creditId], references: [id])
+  motivo      String
+  fechaInicio DateTime         @default(now())
+  fechaCierre DateTime?
+  estado      String           @default("EN_PROCESO")
+  acciones    RecoveryAction[]
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+
+  @@index([estado])
+  @@index([userId])
+  @@map("credit_recoveries")
+}
+
+model RecoveryAction {
+  id          String         @id @default(uuid())
+  recoveryId  String
+  recovery    CreditRecovery @relation(fields: [recoveryId], references: [id])
+  tipo        String
+  descripcion String
+  fecha       DateTime       @default(now())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+
+  @@index([recoveryId])
+  @@index([fecha])
+  @@map("recovery_actions")
+}
+
+model Account {
+  id       String        @id @default(uuid())
+  codigo   String        @unique
+  nombre   String
+  tipo     String
+  nivel    Int           @default(1)
+  parentId String?
+  parent   Account?      @relation("AccountTree", fields: [parentId], references: [id])
+  children Account[]     @relation("AccountTree")
+  lineas   JournalLine[]
+  activo   Boolean       @default(true)
+
+  @@index([codigo])
+  @@index([tipo])
+  @@index([parentId])
+  @@map("accounts")
+}
+
+model JournalEntry {
+  id          String        @id @default(uuid())
+  numero      Int           @default(autoincrement())
+  fecha       DateTime      @default(now())
+  descripcion String
+  referencia  String?
+  tipo        String
+  lineas      JournalLine[]
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@index([numero])
+  @@index([fecha])
+  @@index([tipo])
+  @@index([userId])
+  @@map("journal_entries")
+}
+
+model JournalLine {
+  id        String       @id @default(uuid())
+  entryId   String
+  entry     JournalEntry @relation(fields: [entryId], references: [id])
+  accountId String
+  account   Account      @relation(fields: [accountId], references: [id])
+  debe      Decimal      @db.Decimal(10, 2) @default(0)
+  haber     Decimal      @db.Decimal(10, 2) @default(0)
+
+  @@index([entryId])
+  @@index([accountId])
+  @@map("journal_lines")
+}
+
+model Purchase {
+  id                String    @id @default(uuid())
+  ncf               String
+  ncfModificado     String?
+  rncProveedor      String
+  tipoId            String    @default("1")
+  tipoBien          String    @default("09")
+  fechaComprobante  DateTime
+  fechaPago         DateTime?
+  montoServicios    Decimal   @db.Decimal(10, 2) @default(0)
+  montoBienes       Decimal   @db.Decimal(10, 2) @default(0)
+  itbisFacturado    Decimal   @db.Decimal(10, 2) @default(0)
+  itbisRetenido     Decimal   @db.Decimal(10, 2) @default(0)
+  itbisCosto        Decimal   @db.Decimal(10, 2) @default(0)
+  tipoRetencionISR  String?
+  montoRetencionISR Decimal?  @db.Decimal(10, 2)
+  formaPago         String    @default("1")
+  descripcion       String?
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+
+  @@index([fechaComprobante])
+  @@index([rncProveedor])
+  @@map("purchases")
+}
+
+model DgiiSubmission {
+  id          String   @id @default(uuid())
+  tipo        String
+  periodo     String
+  registros   Int
+  totalMonto  Decimal  @db.Decimal(10, 2)
+  totalITBIS  Decimal  @db.Decimal(10, 2)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  generadoEn  DateTime @default(now())
+
+  @@index([tipo])
+  @@index([periodo])
+  @@map("dgii_submissions")
+}
+
 model Setting {
   id    String @id @default(uuid())
   clave String @unique
@@ -170,4 +313,32 @@ model Setting {
 
   @@index([clave])
   @@map("settings")
+}
+
+model PettyCash {
+  id            String              @id @default(uuid())
+  nombre        String              @default("Caja Chica")
+  fondoAsignado Decimal             @db.Decimal(10, 2)
+  saldoActual   Decimal             @db.Decimal(10, 2)
+  activo        Boolean             @default(true)
+  movimientos   PettyCashMovement[]
+  creadoEn      DateTime            @default(now())
+
+  @@map("petty_cash")
+}
+
+model PettyCashMovement {
+  id          String    @id @default(uuid())
+  cajaChicaId String
+  cajaChica   PettyCash @relation(fields: [cajaChicaId], references: [id])
+  tipo        String    // "REEMBOLSO" | "REPOSICION" | "AJUSTE"
+  monto       Decimal   @db.Decimal(10, 2)
+  descripcion String
+  comprobante String?   // URL del comprobante subido
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  fecha       DateTime  @default(now())
+
+  @@index([cajaChicaId])
+  @@map("petty_cash_movements")
 }

@@ -103,80 +103,80 @@ export default function SettingsGeneralPage() {
     <div className="space-y-6 max-w-3xl">
       <PageHeader title="Configuración General" description="Ajustes del sistema" />
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 space-y-5">
+      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
         <div className="flex items-center gap-2">
-          <Building2 className="h-5 w-5 text-emerald-400" />
-          <h2 className="text-lg font-semibold text-white">Información de la Empresa</h2>
+          <Building2 className="h-5 w-5 text-emerald-600" />
+          <h2 className="text-lg font-semibold text-slate-800">Información de la Empresa</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Nombre de la Empresa
             </label>
             <input
               value={form.empresa_nombre ?? ""}
               onChange={(e) => setForm((prev) => ({ ...prev, empresa_nombre: e.target.value }))}
-              className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
               placeholder="Mi Empresa"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">RNC / Cédula Fiscal</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">RNC / Cédula Fiscal</label>
             <input
               value={form.empresa_rnc ?? ""}
               onChange={(e) => setForm((prev) => ({ ...prev, empresa_rnc: e.target.value }))}
-              className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
               placeholder="000-00000-0"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Teléfono</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Teléfono</label>
             <input
               value={form.empresa_telefono ?? ""}
               onChange={(e) => setForm((prev) => ({ ...prev, empresa_telefono: e.target.value }))}
-              className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
               placeholder="809-000-0000"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Dirección</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Dirección</label>
             <input
               value={form.empresa_direccion ?? ""}
               onChange={(e) => setForm((prev) => ({ ...prev, empresa_direccion: e.target.value }))}
-              className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
               placeholder="Dirección fiscal"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
             Logo (URL)
           </label>
           <input
             value={form.empresa_logo ?? ""}
             onChange={(e) => setForm((prev) => ({ ...prev, empresa_logo: e.target.value }))}
-            className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
             placeholder="https://ejemplo.com/logo.png"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">Moneda</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Moneda</label>
           <input
             value={form.moneda ?? "RD$"}
             onChange={(e) => setForm((prev) => ({ ...prev, moneda: e.target.value }))}
-            className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
             placeholder="RD$"
           />
         </div>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 space-y-5">
+      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
         <div className="flex items-center gap-2">
-          <Percent className="h-5 w-5 text-emerald-400" />
-          <h2 className="text-lg font-semibold text-white">ITBIS</h2>
+          <Percent className="h-5 w-5 text-emerald-600" />
+          <h2 className="text-lg font-semibold text-slate-800">ITBIS</h2>
         </div>
 
         <div className="flex items-center gap-4">
@@ -189,7 +189,7 @@ export default function SettingsGeneralPage() {
                 }))
               }
               className={`relative w-10 h-6 rounded-full transition-colors ${
-                form.itbis_activo === "true" ? "bg-emerald-500" : "bg-slate-700"
+                form.itbis_activo === "true" ? "bg-emerald-500" : "bg-slate-300"
               }`}
             >
               <div
@@ -198,12 +198,12 @@ export default function SettingsGeneralPage() {
                 }`}
               />
             </div>
-            <span className="text-sm text-slate-300">Activar ITBIS</span>
+            <span className="text-sm text-slate-700">Activar ITBIS</span>
           </label>
         </div>
 
         <div className="sm:w-48">
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
             Porcentaje (%)
           </label>
           <input
@@ -213,23 +213,23 @@ export default function SettingsGeneralPage() {
             onChange={(e) =>
               setForm((prev) => ({ ...prev, itbis_porcentaje: e.target.value }))
             }
-            className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
             placeholder="18"
           />
         </div>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 space-y-5">
+      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
         <div className="flex items-center gap-2">
-          <CreditCard className="h-5 w-5 text-emerald-400" />
-          <h2 className="text-lg font-semibold text-white">
+          <CreditCard className="h-5 w-5 text-emerald-600" />
+          <h2 className="text-lg font-semibold text-slate-800">
             Valores por Defecto para Créditos
           </h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Tasa de Interés Default (% anual)
             </label>
             <input
@@ -239,12 +239,12 @@ export default function SettingsGeneralPage() {
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, interes_default: e.target.value }))
               }
-              className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
               placeholder="24"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Seguro por Cuota (RD$)
             </label>
             <input
@@ -254,7 +254,7 @@ export default function SettingsGeneralPage() {
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, seguro_default: e.target.value }))
               }
-              className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
               placeholder="500"
             />
           </div>
@@ -265,7 +265,7 @@ export default function SettingsGeneralPage() {
         <button
           onClick={handleSaveAll}
           disabled={saving}
-          className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
         >
           {saving ? (
             <>

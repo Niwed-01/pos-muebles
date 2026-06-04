@@ -1,13 +1,14 @@
 const badgeStyles: Record<string, string> = {
-  ACTIVO: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-  PAGADO: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-  PAGADA: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-  ATRASADO: "bg-red-500/10 text-red-400 border border-red-500/20",
-  BAJO_STOCK: "bg-red-500/10 text-red-400 border border-red-500/20",
-  SIN_STOCK: "bg-red-500/10 text-red-400 border border-red-500/20",
-  ANULADA: "bg-red-500/10 text-red-400 border border-red-500/20",
-  PENDIENTE: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-  INACTIVO: "bg-slate-500/10 text-slate-400 border border-slate-500/20",
+  ACTIVO: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  PAGADO: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  PAGADA: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  RECUPERACION: "bg-indigo-50 text-indigo-700 border border-indigo-200",
+  ATRASADO: "bg-red-50 text-red-700 border border-red-200",
+  BAJO_STOCK: "bg-red-50 text-red-700 border border-red-200",
+  SIN_STOCK: "bg-red-50 text-red-700 border border-red-200",
+  ANULADA: "bg-red-50 text-red-700 border border-red-200",
+  PENDIENTE: "bg-amber-50 text-amber-700 border border-amber-200",
+  INACTIVO: "bg-slate-50 text-slate-500 border border-slate-200",
 }
 
 const badgeLabels: Record<string, string> = {
@@ -19,6 +20,7 @@ const badgeLabels: Record<string, string> = {
   SIN_STOCK: "Sin stock",
   ANULADA: "Anulada",
   PENDIENTE: "Pendiente",
+  RECUPERACION: "Recuperación",
   INACTIVO: "Inactivo",
 }
 
@@ -29,7 +31,7 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, label, className = "" }: StatusBadgeProps) {
-  const styles = badgeStyles[status] ?? "bg-slate-500/10 text-slate-400 border border-slate-500/20"
+  const styles = badgeStyles[status] ?? "bg-slate-50 text-slate-500 border border-slate-200"
   const displayLabel = label ?? badgeLabels[status] ?? status
 
   return (

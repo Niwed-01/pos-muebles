@@ -56,9 +56,9 @@ interface UltimaVenta {
 }
 
 const estadoBadge: Record<string, string> = {
-  PAGADA: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  PENDIENTE: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  ANULADA: "bg-red-500/10 text-red-400 border-red-500/20",
+  PAGADA: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  PENDIENTE: "bg-amber-50 text-amber-700 border-amber-200",
+  ANULADA: "bg-red-50 text-red-700 border-red-200",
 }
 
 const metodoPagoLabel: Record<string, string> = {
@@ -71,9 +71,9 @@ const metodoPagoLabel: Record<string, string> = {
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm shadow-xl">
-      <p className="text-slate-400 mb-1">{label}</p>
-      <p className="text-white font-mono font-medium">
+    <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm shadow-xl">
+      <p className="text-slate-500 mb-1">{label}</p>
+      <p className="text-slate-800 font-mono font-medium">
         {formatCurrency(payload[0].value)}
       </p>
     </div>
@@ -102,7 +102,7 @@ export default function DashboardPage() {
       header: "#",
       id: "rank",
       cell: ({ row }) => (
-        <span className="text-sm font-medium text-slate-500 w-6">
+        <span className="text-sm font-medium text-slate-400 w-6">
           #{row.index + 1}
         </span>
       ),
@@ -111,21 +111,21 @@ export default function DashboardPage() {
       header: "Producto",
       accessorKey: "nombre",
       cell: ({ row }) => (
-        <span className="text-slate-200">{row.original.nombre}</span>
+        <span className="text-slate-700">{row.original.nombre}</span>
       ),
     },
     {
       header: "Vendidos",
       accessorKey: "cantidad",
       cell: ({ row }) => (
-        <span className="text-slate-200 font-mono">{row.original.cantidad}</span>
+        <span className="text-slate-700 font-mono">{row.original.cantidad}</span>
       ),
     },
     {
       header: "Total",
       accessorKey: "total",
       cell: ({ row }) => (
-        <span className="text-slate-200 font-mono">
+        <span className="text-slate-700 font-mono">
           {formatCurrency(row.original.total)}
         </span>
       ),
@@ -137,26 +137,26 @@ export default function DashboardPage() {
       header: "#",
       accessorKey: "numero",
       cell: ({ row }) => (
-        <span className="text-slate-300 font-mono">{row.original.numero}</span>
+        <span className="text-slate-500 font-mono">{row.original.numero}</span>
       ),
     },
     {
       header: "Cliente",
       accessorKey: "customer.nombre",
-      cell: ({ row }) => <span className="text-slate-200">{row.original.customer.nombre}</span>,
+      cell: ({ row }) => <span className="text-slate-700">{row.original.customer.nombre}</span>,
     },
     {
       header: "Total",
       accessorKey: "total",
       cell: ({ row }) => (
-        <span className="text-slate-200 font-mono">{formatCurrency(row.original.total)}</span>
+        <span className="text-slate-700 font-mono">{formatCurrency(row.original.total)}</span>
       ),
     },
     {
       header: "Pago",
       accessorKey: "metodoPago",
       cell: ({ row }) => (
-        <span className="text-slate-400">{metodoPagoLabel[row.original.metodoPago] ?? row.original.metodoPago}</span>
+        <span className="text-slate-500">{metodoPagoLabel[row.original.metodoPago] ?? row.original.metodoPago}</span>
       ),
     },
     {
@@ -213,10 +213,10 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-slate-800 rounded-xl border border-slate-700 p-5">
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-5 w-5 text-emerald-400" />
-            <h2 className="text-lg font-semibold text-white">
+            <TrendingUp className="h-5 w-5 text-emerald-600" />
+            <h2 className="text-lg font-semibold text-slate-800">
               Ventas Últimos 7 Días
             </h2>
           </div>
@@ -224,7 +224,7 @@ export default function DashboardPage() {
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={ventas7Dias}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis
                     dataKey="fecha"
                     tick={{ fill: "#94a3b8", fontSize: 12 }}
@@ -235,38 +235,38 @@ export default function DashboardPage() {
                         day: "numeric",
                       })
                     }}
-                    stroke="#475569"
+                    stroke="#cbd5e1"
                   />
                   <YAxis
                     tick={{ fill: "#94a3b8", fontSize: 12 }}
                     tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`}
-                    stroke="#475569"
+                    stroke="#cbd5e1"
                   />
                   <Tooltip content={<ChartTooltip />} />
                   <Line
                     type="monotone"
                     dataKey="total"
-                    stroke="#10b981"
+                    stroke="#059669"
                     strokeWidth={2}
-                    dot={{ fill: "#10b981", r: 4 }}
+                    dot={{ fill: "#059669", r: 4 }}
                     activeDot={{ r: 6 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-64 flex items-center justify-center text-slate-500 text-sm">
+            <div className="h-64 flex items-center justify-center text-slate-400 text-sm">
               No hay ventas en los últimos 7 días
             </div>
           )}
         </div>
 
-        <div className="bg-slate-800 rounded-xl border border-slate-700 p-5">
-          <h2 className="text-lg font-semibold text-white mb-4">
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">
             Top 5 Productos
           </h2>
           {topProductos.length === 0 ? (
-            <div className="flex items-center justify-center h-48 text-slate-500 text-sm">
+            <div className="flex items-center justify-center h-48 text-slate-400 text-sm">
               Sin ventas esta semana
             </div>
           ) : (
@@ -274,17 +274,17 @@ export default function DashboardPage() {
               {topProductos.map((producto, i) => (
                 <div
                   key={producto.id}
-                  className="flex items-center justify-between py-2 border-b border-slate-700 last:border-0"
+                  className="flex items-center justify-between py-2 border-b border-slate-200 last:border-0"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-slate-500 w-6">
+                    <span className="text-sm font-medium text-slate-400 w-6">
                       #{i + 1}
                     </span>
-                    <span className="text-sm text-slate-200">
+                    <span className="text-sm text-slate-700">
                       {producto.nombre}
                     </span>
                   </div>
-                  <span className="text-sm text-slate-400">
+                  <span className="text-sm text-slate-500">
                     {producto.cantidad} vendidos
                   </span>
                 </div>
@@ -294,12 +294,12 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-5">
-        <h2 className="text-lg font-semibold text-white mb-4">
+      <div className="bg-white rounded-xl border border-slate-200 p-5">
+        <h2 className="text-lg font-semibold text-slate-800 mb-4">
           Últimas Ventas
         </h2>
         {ultimasVentas.length === 0 ? (
-          <div className="flex items-center justify-center h-32 text-slate-500 text-sm">
+          <div className="flex items-center justify-center h-32 text-slate-400 text-sm">
             No hay ventas registradas
           </div>
         ) : (

@@ -17,7 +17,11 @@ export interface CreditCalcInput {
   cuotas: number
   frecuencia: Frecuencia
   seguroPorCuota: number
+  tipoSeguro?: "FIJO" | "PORCENTAJE"
+  valorSeguro?: number
   fechaVenta: Date
+  gastosLegales?: number
+  modalidadGastos?: "CUOTAS" | "INICIAL"
 }
 
 function periodRate(tasaAnual: number, frecuencia: Frecuencia): number {
@@ -50,12 +54,22 @@ export function calcCuotaFija(P: number, r: number, n: number): number {
 }
 
 export function generateSchedule(input: CreditCalcInput): ScheduleRow[] {
-  const P = Math.round((input.montoTotal - input.inicial) * 100) / 100
+  const gastosLegales = input.gastosLegales ?? 0
+  const modalidadGastos = input.modalidadGastos ?? "CUOTAS"
+  
+  let montoFinanciar = Math.round((input.montoTotal - input.inicial) * 100) / 100
+  
+  // Si los gastos legales van en cuotas, se agregan al monto a financiar
+  if (modalidadGastos === "CUOTAS" && gastosLegales > 0) {
+    montoFinanciar = Math.round((montoFinanciar + gastosLegales) * 100) / 100
+  }
+  
+  const P = montoFinanciar
   if (P <= 0) return []
 
   const r = periodRate(input.tasaInteres, input.frecuencia)
   const n = input.cuotas
-  const seguro = input.seguroPorCuota
+  const tipoSeguro = input.tipoSeguro ?? "FIJO"
   const dias = periodDays(input.frecuencia)
 
   const cuotaFija = calcCuotaFija(P, r, n)
@@ -64,6 +78,14 @@ export function generateSchedule(input: CreditCalcInput): ScheduleRow[] {
 
   for (let i = 1; i <= n; i++) {
     const interes = Math.round(saldo * r * 100) / 100
+
+    let seguro: number
+    if (tipoSeguro === "PORCENTAJE") {
+      seguro = Math.round(saldo * ((input.valorSeguro ?? 0) / 100) * 100) / 100
+    } else {
+      seguro = input.seguroPorCuota
+    }
+
     const capital = Math.round((cuotaFija - interes) * 100) / 100
     const totalCuota = Math.round((cuotaFija + seguro) * 100) / 100
 
@@ -93,21 +115,49 @@ export function generateSchedule(input: CreditCalcInput): ScheduleRow[] {
 }
 
 export function calcCreditSummary(input: CreditCalcInput) {
-  const P = Math.round((input.montoTotal - input.inicial) * 100) / 100
+  const gastosLegales = input.gastosLegales ?? 0
+  const modalidadGastos = input.modalidadGastos ?? "CUOTAS"
+
+  let P = Math.round((input.montoTotal - input.inicial) * 100) / 100
+  if (modalidadGastos === "CUOTAS" && gastosLegales > 0) {
+    P = Math.round((P + gastosLegales) * 100) / 100
+  }
+
   const r = periodRate(input.tasaInteres, input.frecuencia)
   const cuotaFija = calcCuotaFija(P, r, input.cuotas)
-  const totalCuota = Math.round((cuotaFija + input.seguroPorCuota) * 100) / 100
-  const totalAPagar = Math.round((totalCuota * input.cuotas + input.inicial) * 100) / 100
+  const tipoSeguro = input.tipoSeguro ?? "FIJO"
+
+  let totalSeguros: number
+  let cuotaConSeguro: number
+
+  if (tipoSeguro === "PORCENTAJE") {
+    totalSeguros = 0
+    let saldo = P
+    for (let i = 1; i <= input.cuotas; i++) {
+      const seguro = Math.round(saldo * ((input.valorSeguro ?? 0) / 100) * 100) / 100
+      totalSeguros += seguro
+      const capital = Math.round((cuotaFija - Math.round(saldo * r * 100) / 100) * 100) / 100
+      saldo = i === input.cuotas ? 0 : Math.round((saldo - capital) * 100) / 100
+    }
+    totalSeguros = Math.round(totalSeguros * 100) / 100
+    cuotaConSeguro = Math.round((cuotaFija + (totalSeguros / input.cuotas)) * 100) / 100
+  } else {
+    cuotaConSeguro = Math.round((cuotaFija + input.seguroPorCuota) * 100) / 100
+    totalSeguros = Math.round((input.seguroPorCuota * input.cuotas) * 100) / 100
+  }
+
+  const totalAPagar = Math.round((cuotaFija * input.cuotas + totalSeguros + input.inicial + (modalidadGastos === "INICIAL" ? gastosLegales : 0)) * 100) / 100
   const totalIntereses = Math.round((cuotaFija * input.cuotas - P) * 100) / 100
-  const totalSeguros = Math.round((input.seguroPorCuota * input.cuotas) * 100) / 100
+  const inicialTotal = input.inicial + (modalidadGastos === "INICIAL" ? gastosLegales : 0)
 
   return {
     montoFinanciado: P,
     cuotaFijaSinSeguro: cuotaFija,
-    cuotaConSeguro: totalCuota,
+    cuotaConSeguro,
     totalAPagar,
     totalIntereses,
     totalSeguros,
+    inicialTotal,
   }
 }
 

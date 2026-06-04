@@ -91,11 +91,11 @@ export default function ProductsPage() {
             <img
               src={img}
               alt={row.original.nombre}
-              className="h-10 w-10 rounded-lg object-cover border border-slate-700"
+              className="h-10 w-10 rounded-lg object-cover border border-slate-200"
             />
           ) : (
-            <div className="h-10 w-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center">
-              <ImageOff className="h-4 w-4 text-slate-600" />
+            <div className="h-10 w-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center">
+              <ImageOff className="h-4 w-4 text-slate-400" />
             </div>
           )
         },
@@ -106,7 +106,7 @@ export default function ProductsPage() {
         cell: ({ row }) => (
           <Link
             href={`/products/${row.original.id}`}
-            className="text-white hover:text-emerald-400 transition-colors font-medium"
+            className="text-slate-800 hover:text-emerald-600 transition-colors font-medium"
           >
             {row.original.nombre}
           </Link>
@@ -116,7 +116,7 @@ export default function ProductsPage() {
         header: "Categoría",
         accessorKey: "categoria",
         cell: ({ row }) => (
-          <span className="text-slate-400">{row.original.categoria.nombre}</span>
+          <span className="text-slate-500">{row.original.categoria.nombre}</span>
         ),
       },
       {
@@ -130,10 +130,10 @@ export default function ProductsPage() {
             <span
               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 stock === 0
-                  ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                  ? "bg-red-50 text-red-700 border border-red-200"
                   : isLow
-                  ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                  : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                  ? "bg-amber-50 text-amber-700 border border-amber-200"
+                  : "bg-emerald-50 text-emerald-700 border border-emerald-200"
               }`}
             >
               {stock}
@@ -145,7 +145,7 @@ export default function ProductsPage() {
         header: "Precio",
         accessorKey: "precio",
         cell: ({ row }) => (
-          <span className="text-slate-200 font-mono">
+          <span className="text-slate-700 font-mono">
             {formatCurrency(row.original.precio)}
           </span>
         ),
@@ -156,14 +156,14 @@ export default function ProductsPage() {
         cell: ({ row }) => {
           const costo = Number(row.original.costo)
           const precio = Number(row.original.precio)
-          if (costo === 0) return <span className="text-slate-500">—</span>
+          if (costo === 0) return <span className="text-slate-400">—</span>
           const margen = ((precio - costo) / costo) * 100
           const color =
             margen >= 50
-              ? "text-emerald-400"
+              ? "text-emerald-600"
               : margen >= 25
-              ? "text-amber-400"
-              : "text-red-400"
+              ? "text-amber-600"
+              : "text-red-600"
           return (
             <span className={`font-mono ${color}`}>
               {margen >= 0 ? "+" : ""}
@@ -192,19 +192,19 @@ export default function ProductsPage() {
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
             placeholder="Buscar productos..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-colors"
           />
         </div>
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-colors"
+          className="px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-colors"
         >
           <option value="">Todas las categorías</option>
           {categories.map((cat: Category) => (
@@ -216,7 +216,7 @@ export default function ProductsPage() {
         <select
           value={stockFilter}
           onChange={(e) => setStockFilter(e.target.value)}
-          className="px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-colors"
+          className="px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-colors"
         >
           <option value="">Todos los stocks</option>
           <option value="bajo">Stock bajo</option>

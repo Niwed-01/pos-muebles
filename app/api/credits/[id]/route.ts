@@ -24,6 +24,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       cuotas: data.cuotas,
       frecuencia: data.frecuencia as "SEMANAL" | "QUINCENAL" | "MENSUAL",
       seguroPorCuota: Number(data.seguro),
+      tipoSeguro: (data.tipoSeguro ?? "FIJO") as "FIJO" | "PORCENTAJE",
+      valorSeguro: Number(data.valorSeguro ?? 0),
       fechaVenta: sale?.creadoEn ?? new Date(),
     })
 
@@ -34,6 +36,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       cuotas: data.cuotas,
       frecuencia: data.frecuencia as "SEMANAL" | "QUINCENAL" | "MENSUAL",
       seguroPorCuota: Number(data.seguro),
+      tipoSeguro: (data.tipoSeguro ?? "FIJO") as "FIJO" | "PORCENTAJE",
+      valorSeguro: Number(data.valorSeguro ?? 0),
       fechaVenta: sale?.creadoEn ?? new Date(),
     })
 

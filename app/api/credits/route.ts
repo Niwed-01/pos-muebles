@@ -13,29 +13,76 @@ const createCreditSchema = z.object({
   frecuencia: z.enum(["SEMANAL", "QUINCENAL", "MENSUAL"]),
   tasaInteres: z.number().min(0, "La tasa de interés no puede ser negativa").default(0),
   seguro: z.number().min(0).default(0),
+  tipoSeguro: z.enum(["FIJO", "PORCENTAJE"]).default("FIJO"),
+  valorSeguro: z.number().min(0).default(0),
 })
 
 export async function GET(req: NextRequest) {
   try {
     await getAuthUser()
     const { searchParams } = new URL(req.url)
-    const customerId = searchParams.get("customerId")
+    const search = searchParams.get("search")
     const estado = searchParams.get("estado")
+    const desde = searchParams.get("desde")
+    const hasta = searchParams.get("hasta")
+    
+    const montoMinStr = searchParams.get("montoMin")
+    const montoMaxStr = searchParams.get("montoMax")
+    const montoMin = montoMinStr ? parseFloat(montoMinStr) : undefined
+    const montoMax = montoMaxStr ? parseFloat(montoMaxStr) : undefined
+
     const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"))
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "20")))
     const skip = (page - 1) * limit
 
-    const where: Record<string, unknown> = {}
-    if (customerId) where.customerId = customerId
-    if (estado) where.estado = estado
+    const andFilters: Record<string, any>[] = []
+
+    if (search) {
+      andFilters.push({
+        customer: {
+          OR: [
+            { nombre: { contains: search, mode: "insensitive" } },
+            { cedula: { contains: search, mode: "insensitive" } },
+          ],
+        },
+      })
+    }
+
+    if (estado && estado !== "ALL") {
+      andFilters.push({ estado: estado as any })
+    }
+
+    if (desde || hasta) {
+      const fechaFilter: Record<string, Date> = {}
+      if (desde) fechaFilter.gte = new Date(desde)
+      if (hasta) {
+        const finDia = new Date(hasta)
+        finDia.setHours(23, 59, 59, 999)
+        fechaFilter.lte = finDia
+      }
+      andFilters.push({
+        venta: {
+          creadoEn: fechaFilter,
+        },
+      })
+    }
+
+    if (montoMin !== undefined || montoMax !== undefined) {
+      const montoFilter: Record<string, number> = {}
+      if (montoMin !== undefined) montoFilter.gte = montoMin
+      if (montoMax !== undefined) montoFilter.lte = montoMax
+      andFilters.push({ montoTotal: montoFilter })
+    }
+
+    const where = andFilters.length > 0 ? { AND: andFilters } : {}
 
     const [data, total] = await Promise.all([
       db.credit.findMany({
         where,
         include: {
-          customer: { select: { id: true, nombre: true, cedula: true } },
+          customer: { select: { id: true, nombre: true, cedula: true, telefono: true } },
           venta: { select: { id: true, numero: true, total: true, creadoEn: true } },
-          pagos: { orderBy: { fecha: "desc" }, take: 1 },
+          pagos: { orderBy: { fecha: "desc" } },
         },
         skip,
         take: limit,
@@ -44,7 +91,15 @@ export async function GET(req: NextRequest) {
       db.credit.count({ where }),
     ])
 
-    return apiResponse({ items: data, total, page, limit })
+    const totalPages = Math.ceil(total / limit)
+
+    return apiResponse({ 
+      items: data, 
+      total, 
+      page, 
+      limit,
+      totalPages 
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error al obtener créditos"
     const status = message === "No autorizado" ? 401 : 500
@@ -75,6 +130,8 @@ export async function POST(req: NextRequest) {
       cuotas: parsed.cuotas,
       frecuencia: parsed.frecuencia,
       seguroPorCuota: parsed.seguro,
+      tipoSeguro: parsed.tipoSeguro,
+      valorSeguro: parsed.valorSeguro,
       fechaVenta: new Date(),
     })
 
@@ -90,6 +147,8 @@ export async function POST(req: NextRequest) {
           frecuencia: parsed.frecuencia,
           tasaInteres: parsed.tasaInteres,
           seguro: parsed.seguro,
+          tipoSeguro: parsed.tipoSeguro,
+          valorSeguro: parsed.valorSeguro,
           estado: saldo <= 0 ? "PAGADO" : "ACTIVO",
         },
         include: {

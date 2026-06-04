@@ -34,34 +34,34 @@ export function ConfirmDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 w-full max-w-sm mx-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-xl border border-slate-200 p-6 w-full max-w-sm mx-4 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              variant === "danger" ? "bg-red-500/10" : variant === "warning" ? "bg-amber-500/10" : "bg-slate-700"
+              variant === "danger" ? "bg-red-50" : variant === "warning" ? "bg-amber-50" : "bg-slate-100"
             }`}>
               <AlertTriangle className={`h-5 w-5 ${
-                variant === "danger" ? "text-red-400" : variant === "warning" ? "text-amber-400" : "text-slate-400"
+                variant === "danger" ? "text-red-600" : variant === "warning" ? "text-amber-600" : "text-slate-500"
               }`} />
             </div>
-            <h3 className="text-lg font-semibold text-white">{title}</h3>
+            <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
           </div>
           <button
             onClick={onCancel}
-            className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <p className="text-sm text-slate-400 mb-6">{description}</p>
+        <p className="text-sm text-slate-500 mb-6">{description}</p>
 
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
             disabled={loading}
-            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition-colors"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition-colors"
           >
             {cancelLabel}
           </button>

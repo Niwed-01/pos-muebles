@@ -84,27 +84,62 @@ export function ReceiptHTML({ sale, settings }: ReceiptHTMLProps) {
         {settings?.empresa_telefono && <p className="text-xs text-gray-500">Tel: {settings.empresa_telefono}</p>}
       </div>
 
+      {/* Customer Section */}
+      {sale.metodoPago === "CREDITO" ? (
+        <div className="border border-yellow-400 bg-yellow-50 p-3 rounded mb-4 text-xs">
+          <p className="font-bold text-sm text-center mb-2">CONTRATO DE CRÉDITO</p>
+          <div className="flex justify-between">
+            <span>Cliente: {sale.customer.nombre}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Cédula: {sale.customer.cedula ?? "N/A"}</span>
+          </div>
+          {sale.customer.telefono && (
+            <div className="flex justify-between">
+              <span>Teléfono: {sale.customer.telefono}</span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span>Fecha: {formatDate(sale.creadoEn)}</span>
+          </div>
+          {sale.credito && (
+            <>
+              <div className="flex justify-between">
+                <span>{sale.credito.cuotas} cuotas ({frecuenciaLabel[sale.credito.frecuencia] ?? sale.credito.frecuencia})</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Cuota {sale.credito.frecuencia === "MENSUAL" ? "mensual" : sale.credito.frecuencia === "QUINCENAL" ? "quincenal" : "semanal"}: {formatCurrency(Number(sale.credito.montoTotal) / sale.credito.cuotas)}</span>
+              </div>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="border border-gray-200 p-3 rounded mb-4 text-xs">
+          <p className="font-bold mb-1">Cliente:</p>
+          <div className="flex justify-between">
+            <span>Nombre: {sale.customer.nombre}</span>
+          </div>
+          {sale.customer.cedula && (
+            <div className="flex justify-between">
+              <span>Cédula: {sale.customer.cedula}</span>
+            </div>
+          )}
+          {sale.customer.telefono && (
+            <div className="flex justify-between">
+              <span>Tel: {sale.customer.telefono}</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Sale Info */}
       <div className="mb-4 space-y-1">
         <div className="flex justify-between text-xs">
-          <span>Recibo de Venta #{sale.numero}</span>
+          <span>{sale.metodoPago === "CREDITO" ? `Contrato #${sale.numero}` : `Factura #${sale.numero}`}</span>
         </div>
         <div className="flex justify-between text-xs">
           <span>Fecha: {formatDate(sale.creadoEn)}</span>
         </div>
-        <div className="flex justify-between text-xs">
-          <span>Cliente: {sale.customer.nombre}</span>
-        </div>
-        {sale.customer.cedula && (
-          <div className="flex justify-between text-xs">
-            <span>Cédula: {sale.customer.cedula}</span>
-          </div>
-        )}
-        {sale.customer.telefono && (
-          <div className="flex justify-between text-xs">
-            <span>Tel: {sale.customer.telefono}</span>
-          </div>
-        )}
         <div className="flex justify-between text-xs">
           <span>Vendedor: {sale.user.nombre}</span>
         </div>

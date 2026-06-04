@@ -183,29 +183,29 @@ export default function SettingsUsersPage() {
         </button>
       </PageHeader>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-700">
-                <th className="px-4 py-3 text-left font-medium text-slate-400">Nombre</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-400">Email</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-400">Rol</th>
-                <th className="px-4 py-3 text-center font-medium text-slate-400">Estado</th>
-                <th className="px-4 py-3 text-center font-medium text-slate-400">Acciones</th>
+              <tr className="border-b border-slate-200">
+                <th className="px-4 py-3 text-left font-medium text-slate-500">Nombre</th>
+                <th className="px-4 py-3 text-left font-medium text-slate-500">Email</th>
+                <th className="px-4 py-3 text-left font-medium text-slate-500">Rol</th>
+                <th className="px-4 py-3 text-center font-medium text-slate-500">Estado</th>
+                <th className="px-4 py-3 text-center font-medium text-slate-500">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700">
+            <tbody className="divide-y divide-slate-200">
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-700/30 transition-colors">
-                  <td className="px-4 py-3 text-slate-200 font-medium">{user.nombre}</td>
-                  <td className="px-4 py-3 text-slate-400">{user.email}</td>
+                <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-4 py-3 text-slate-700 font-medium">{user.nombre}</td>
+                  <td className="px-4 py-3 text-slate-500">{user.email}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
                         user.rol === "ADMIN"
-                          ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                          : "bg-slate-500/10 text-slate-400 border border-slate-500/20"
+                          ? "bg-purple-50 text-purple-700 border border-purple-200"
+                          : "bg-slate-50 text-slate-500 border border-slate-200"
                       }`}
                     >
                       <Shield className="h-3 w-3" />
@@ -224,8 +224,8 @@ export default function SettingsUsersPage() {
                       disabled={toggleMutation.isPending}
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                         user.activo
-                          ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
-                          : "bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                          ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                          : "bg-red-50 text-red-700 hover:bg-red-100"
                       }`}
                     >
                       {user.activo ? (
@@ -244,7 +244,7 @@ export default function SettingsUsersPage() {
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => openEdit(user)}
-                      className="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors"
+                      className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -257,15 +257,15 @@ export default function SettingsUsersPage() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 w-full max-w-md mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl border border-slate-200 p-6 w-full max-w-md mx-4 shadow-xl">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="text-lg font-semibold text-slate-800">
                 {editingUser ? "Editar Usuario" : "Nuevo Usuario"}
               </h3>
               <button
                 onClick={closeModal}
-                className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 transition-colors"
+                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -273,36 +273,36 @@ export default function SettingsUsersPage() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Nombre
                 </label>
                 <input
                   {...register("nombre")}
-                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+                  className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                   placeholder="Nombre completo"
                 />
                 {errors.nombre && (
-                  <p className="mt-1 text-xs text-red-400">{errors.nombre.message}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.nombre.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Email
                 </label>
                 <input
                   {...register("email")}
                   type="email"
-                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+                  className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                   placeholder="correo@ejemplo.com"
                 />
                 {errors.email && (
-                  <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   {editingUser ? "Nueva Contraseña (dejar vacío para no cambiar)" : "Contraseña Temporal"}
                 </label>
                 <input
@@ -310,16 +310,16 @@ export default function SettingsUsersPage() {
                     required: !editingUser ? "La contraseña es requerida" : false,
                   })}
                   type="password"
-                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+                  className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
                   placeholder={editingUser ? "••••••" : "Mínimo 6 caracteres"}
                 />
                 {errors.password && (
-                  <p className="mt-1 text-xs text-red-400">{errors.password.message}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Rol
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -328,8 +328,8 @@ export default function SettingsUsersPage() {
                     onClick={() => reset((prev) => ({ ...prev, rol: "VENDEDOR" }))}
                     className={`px-4 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
                       rol === "VENDEDOR"
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                        : "bg-slate-900 text-slate-400 border-slate-700 hover:border-slate-600"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
                     }`}
                   >
                     Vendedor
@@ -339,15 +339,15 @@ export default function SettingsUsersPage() {
                     onClick={() => reset((prev) => ({ ...prev, rol: "ADMIN" }))}
                     className={`px-4 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
                       rol === "ADMIN"
-                        ? "bg-purple-500/10 text-purple-400 border-purple-500/30"
-                        : "bg-slate-900 text-slate-400 border-slate-700 hover:border-slate-600"
+                        ? "bg-purple-50 text-purple-700 border-purple-200"
+                        : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
                     }`}
                   >
                     Admin
                   </button>
                 </div>
                 {errors.rol && (
-                  <p className="mt-1 text-xs text-red-400">{errors.rol.message}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.rol.message}</p>
                 )}
               </div>
 
@@ -355,14 +355,14 @@ export default function SettingsUsersPage() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition-colors"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                 >
                   {isSaving ? (
                     <>
